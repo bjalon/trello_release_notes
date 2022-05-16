@@ -6,6 +6,7 @@ from trello import TrelloClient
 from loguru import logger
 from functools import lru_cache
 
+from operator import attrgetter
 """
 # given a list of boards
 # for each board
@@ -75,10 +76,12 @@ class Trellist(object):
         logger.info(f"get all release notes cards in the release list: {self.releases.name}")
         cards = self.get_release_cards()
         logger.info(f"got {len(cards)} cards")
+
+        logger.info(f"generate file: {self.release_file_path}")
         with open(self.release_file_path, "wt") as file:
             file.write("# Release Notes KEOS\n")
 
-            for card in cards:
+            for card in sorted(cards, key=attrgetter('name'), reverse=True):
                 file.write(f"## {card.name}\n")
                 file.write(f"{card.description}\n\n")
         logger.info("finished Release Generation")
