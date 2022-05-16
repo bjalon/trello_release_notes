@@ -43,6 +43,7 @@ class Trellist(object):
         releases_list_name="releases",
         create_release_if_zero_done=False,
         create_comments=True,
+        out="./release-notes.md"
     ):
         self.client = TrelloClient(api_key=apikey, api_secret=apisecret)
         self.board = self.get_board(boardname)
@@ -52,6 +53,7 @@ class Trellist(object):
         self.card_summary_template = "- [{card.name}]({card.url}) {card.label_names}"
         self.create_release_if_zero_done = create_release_if_zero_done
         self.create_comment_per_item = create_comments
+        self.release_file_path = out
 
     def run(self):
         """Runs through all the methods to perform the work"""
@@ -67,6 +69,19 @@ class Trellist(object):
                     self.add_comment_to_release(release_card, card)
                 card.set_closed(True)
         logger.info("finished run")
+
+    def generateReleaseMD(self):
+        """Get Release note Cards and generate the markdown file"""
+        logger.info(f"get all release notes cards in the release list: {self.releases.name}")
+        cards = self.get_release_cards()
+        logger.info(f"got {len(cards)} cards")
+        with open(self.release_file_path, "wt") as file:
+            file.write("# Release Notes KEOS\n")
+
+            for card in cards:
+                file.write(f"## {card.name}\n")
+                file.write(f"{card.description}\n\n")
+        logger.info("finished Release Generation")
 
     def get_board(self, board_name):
         """Gets the open board object by a name, otherwise raises an Error to
@@ -127,6 +142,10 @@ class Trellist(object):
     def get_done_cards(self):
         """Get every card from the done list"""
         return self.done.list_cards()
+
+    def get_release_cards(self):
+        """Get every card from the done list"""
+        return self.releases.list_cards()
 
     def prep_card(self, card):
         """Take the card and add arrays of all member initials, full_names and usernames for use in templates
