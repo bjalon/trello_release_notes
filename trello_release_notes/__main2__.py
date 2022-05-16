@@ -14,6 +14,7 @@ def main():
         args.done_list,
         args.releases,
         args.create_empty_release,
+        True,
         args.out,
     )
     t.generateReleaseMD()
