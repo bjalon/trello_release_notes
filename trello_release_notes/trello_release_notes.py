@@ -49,7 +49,7 @@ class Trellist(object):
         self.done = self.get_list_by_name(done_list_name)
         self.releases = self.get_list_by_name(releases_list_name)
         self.release_template = "{date} release: {count} done"
-        self.card_summary_template = "- {card.name} {card.members_initials}"
+        self.card_summary_template = "- [{card.name}]({card.url}) {card.label_names}"
         self.create_release_if_zero_done = create_release_if_zero_done
         self.create_comment_per_item = create_comments
 
@@ -138,10 +138,13 @@ class Trellist(object):
         card.members_initials = ""
         card.members_full_names = ""
         card.members_usernames = ""
+        card.label_names = ""
         if len(card.members):
             card.members_initials = [member.initials for member in card.members]
             card.members_full_names = [member.full_name for member in card.members]
             card.members_usernames = [member.username for member in card.members]
+        if len(card.labels):
+            card.label_names = [label.name for label in card.labels]
         return card
 
     def summarize_these(self, cards, template, prep_function):
@@ -167,7 +170,7 @@ class Trellist(object):
 
         :param card: a Card to summarize
         :param template: a string template. We'll call format and pass in a prepped Card
-        :param prep_function: use this to add extra information to the card 
+        :param prep_function: use this to add extra information to the card
         """
         card = prep_function(self, card)
         summary = template.format(card=card)
